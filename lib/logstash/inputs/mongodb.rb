@@ -72,6 +72,8 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
   # Set how frequently messages should be sent.
   # The default, `1`, means send a message every second.
   config :interval, :validate => :number, :default => 1
+  
+  config :input_delay, :validate => :number, :default => 0
 
   SINCE_TABLE = :since_table
 
@@ -148,6 +150,15 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     collection = mongodb.collection(mongo_collection_name)
     # Need to make this sort by date in object id then get the first of the series
     # db.events_20150320.find().limit(1).sort({ts:1})
+    if input_delay > 0 
+      if since_type == 'id'
+        end_id_object = BSON::ObjectId((Time.now.to_i - input_delay) << 8)
+        return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
+      elif since_type == 'time'
+        end_id_object = Time.at(Time.now.to_i - input_delay)
+        return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
+      end
+    end
     return collection.find({:_id => {:$gt => last_id_object}}).limit(batch_size)
   end
 
