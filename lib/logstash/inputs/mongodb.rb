@@ -153,9 +153,11 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     if input_delay > 0 
       if since_type == 'id'
         end_id_object = BSON::ObjectId((Time.now.to_i - input_delay) << 8)
+        @logger.debug("get cursor begin is #{last_id_object}, end is #{end_id_object}, since_type is id.")
         return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
       elif since_type == 'time'
         end_id_object = Time.at(Time.now.to_i - input_delay)
+        @logger.debug("get cursor begin is #{last_id_object}, end is #{end_id_object}, since_type is time.")
         return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
       end
     end
