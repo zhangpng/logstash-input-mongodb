@@ -153,11 +153,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     @logger.debug("zzzzzzzzzzzzz")
     if input_delay > 0 
       if since_type == 'id'
-        a = Time.now.to_i
-        b = a - input_delay
-        c = b << 64
-        @logger.debug("aaaaa #{a}, #{b}, #{c}")
-        end_id_object = BSON::ObjectId((Time.now.to_i - input_delay) << 64)
+        end_id_object = BSON::ObjectId.from_time(Time.now.to_i - input_delay)
         @logger.debug("get cursor begin is #{last_id_object}, end is #{end_id_object}, since_type is id.")
         return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
       elif since_type == 'time'
