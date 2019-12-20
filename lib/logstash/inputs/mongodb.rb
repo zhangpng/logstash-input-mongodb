@@ -150,9 +150,14 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     collection = mongodb.collection(mongo_collection_name)
     # Need to make this sort by date in object id then get the first of the series
     # db.events_20150320.find().limit(1).sort({ts:1})
+    @logger.debug("zzzzzzzzzzzzz")
     if input_delay > 0 
       if since_type == 'id'
-        end_id_object = BSON::ObjectId((Time.now.to_i - input_delay) << 8)
+        a = Time.now.to_i
+        b = a - input_delay
+        c = b << 64
+        @logger.debug("aaaaa #{a}, #{b}, #{c}")
+        end_id_object = BSON::ObjectId((Time.now.to_i - input_delay) << 64)
         @logger.debug("get cursor begin is #{last_id_object}, end is #{end_id_object}, since_type is id.")
         return collection.find({:_id => {:$gt => last_id_object, :$lt => end_id_object}}).limit(batch_size)
       elif since_type == 'time'
