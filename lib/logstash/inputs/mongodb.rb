@@ -150,7 +150,6 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     collection = mongodb.collection(mongo_collection_name)
     # Need to make this sort by date in object id then get the first of the series
     # db.events_20150320.find().limit(1).sort({ts:1})
-    @logger.debug("zzzzzzzzzzzzz")
     if input_delay > 0 
       if since_type == 'id'
         end_id_object = BSON::ObjectId.from_time(Time.now.to_i - input_delay)
